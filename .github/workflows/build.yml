@@ -61,11 +61,19 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::notice title=TelegramResp-b64::$(printf 'missing-secrets' | base64 -w 0)"
             echo "Secrets not configured — skipping Telegram publish."
             exit 0
           fi
-          curl -sS -X POST \
+          RESP=$(curl -sS --max-time 120 -X POST \
             "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
             -F chat_id="${TELEGRAM_CHAT_ID}" \
             -F document=@app-debug.apk \
-            -F caption="Tech Repair Kit ${GITHUB_REF#refs/tags/} — debug APK (bootloader workstation: fastbot flasher + EDL firehose + readback)"
+            -F caption="Tech Repair Kit ${GITHUB_REF#refs/tags/} — debug APK (bootloader workstation: fastboot flasher + EDL firehose + readback + FRP clear)")
+          echo "::notice title=TelegramResp-b64::$(printf '%s' "$RESP" | base64 -w 0)"
+          if printf '%s' "$RESP" | grep -q '"ok":true'; then
+            echo "Delivered OK."
+          else
+            echo "Telegram API rejected the upload — see TelegramResp-b64 annotation."
+            exit 1
+          fi
