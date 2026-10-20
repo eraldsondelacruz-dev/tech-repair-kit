@@ -24,12 +24,12 @@ jobs:
           SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           test -x "$SDKM" || { echo "FATAL: sdkmanager missing at $SDKM"; exit 1; }
           yes | "$SDKM" --licenses > /dev/null 2>&1 || true
-          echo "Reinstalling platforms;android-35 (runner ships a corrupt android.jar)"
-          "$SDKM" --uninstall "platforms;android-35" > /dev/null 2>&1 || true
-          yes | "$SDKM" "platforms;android-35" > /dev/null
-          unzip -t "$ANDROID_HOME/platforms/android-35/android.jar" > /dev/null \
+          echo "Reinstalling platforms;android-34 (google's android-35 artifact is broken)"
+          "$SDKM" --uninstall "platforms;android-34" > /dev/null 2>&1 || true
+          yes | "$SDKM" "platforms;android-34" > /dev/null
+          unzip -t "$ANDROID_HOME/platforms/android-34/android.jar" > /dev/null \
             && echo "android.jar integrity OK" \
-            || { echo "FATAL: android.jar STILL corrupt"; ls -la "$ANDROID_HOME/platforms/android-35/"; exit 1; }
+            || { echo "FATAL: android.jar STILL corrupt"; ls -la "$ANDROID_HOME/platforms/android-34/"; exit 1; }
 
       - name: Build APK
         run: |
