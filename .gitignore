@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+build/
+app/build/
+**/build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Android Studio / SDK
+local.properties
+
+# Device artifacts
+*.apk
+*.aab
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Logs
+*.log

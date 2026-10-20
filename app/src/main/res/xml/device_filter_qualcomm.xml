@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <usb-device vendor-id="1478" product-id="36872" />
+    <usb-device vendor-id="1478" product-id="36878" />
+    <usb-device vendor-id="1478" product-id="36893" />
+    <usb-device vendor-id="1478" product-id="37083" />
+</resources>

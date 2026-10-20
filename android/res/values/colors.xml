@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0B6E4F</color>
+    <color name="colorPrimaryDark">#07503A</color>
+    <color name="colorAccent">#00B894</color>
+
+    <color name="screenBackground">#F2F4F7</color>
+    <color name="cardBackground">#FFFFFF</color>
+
+    <color name="statusLocked">#B00020</color>
+    <color name="statusUnlocked">#0B6E4F</color>
+    <color name="statusUnknown">#8A6D00</color>
+
+    <color name="textPrimary">#1B1B1B</color>
+    <color name="textSecondary">#5F6368</color>
+    <color name="commandBackground">#101418</color>
+    <color name="commandText">#7CE38B</color>
+</resources>

@@ -1,0 +1,271 @@
+<resources>
+    <string name="app_name">Tech Repair Kit All</string>
+
+    <!-- Main screen -->
+    <string name="main_header">Device &amp; Bootloader</string>
+    <string name="main_subtitle">Check your bootloader status and decide whether unlocking is right for you.</string>
+
+    <string name="card_device_title">Your Device</string>
+    <string name="label_manufacturer">Manufacturer</string>
+    <string name="label_model">Model</string>
+    <string name="label_codename">Codename</string>
+    <string name="label_android">Android version</string>
+    <string name="label_chipset">Chipset</string>
+
+    <string name="card_status_title">Bootloader Status</string>
+    <string name="status_locked">LOCKED</string>
+    <string name="status_unlocked">UNLOCKED</string>
+    <string name="status_unknown">UNKNOWN</string>
+    <string name="status_locked_desc">Your bootloader is locked. This is the safe, factory state. OTA updates and banking apps work normally.</string>
+    <string name="status_unlocked_desc">Your bootloader is unlocked. You can flash custom software, but OTA updates and some apps may be affected.</string>
+    <string name="status_unknown_desc">We could not read the bootloader state on this device. Your manufacturer may hide this information from apps.</string>
+
+    <string name="label_oem_unlock">OEM unlocking supported</string>
+    <string name="label_verified_boot">Verified boot state</string>
+    <string name="value_yes">Yes</string>
+    <string name="value_no">No</string>
+    <string name="value_unknown">Unknown</string>
+
+    <string name="btn_decide">Should I unlock?</string>
+    <string name="btn_unlock_guide">Unlock Guide</string>
+    <string name="btn_relock_guide">Relock Guide</string>
+    <string name="btn_mtk_extract">Extract boot.img (MediaTek)</string>
+
+    <string name="disclaimer_title">Important</string>
+    <string name="disclaimer_body">This app cannot unlock THIS phone from inside Android — a phone cannot send bootloader commands to itself. Unlocking always needs a separate host. If you have a second phone and a USB-OTG cable, use \"Fastboot over OTG\" to unlock or flash the other phone with no PC. This app also detects your status and guides you.</string>
+
+    <!-- Decision screen -->
+    <string name="decision_title">Should I Unlock?</string>
+    <string name="guide_title">Bootloader Guide</string>
+    <string name="decision_intro">Select everything you want to do. We will tell you whether unlocking is worth it for your case.</string>
+    <string name="btn_evaluate">Get my recommendation</string>
+    <string name="decision_result_title">Recommendation</string>
+    <string name="risk_title">Risks to know before unlocking</string>
+
+    <!-- Guide screen -->
+    <string name="guide_unlock_title">Unlock Bootloader</string>
+    <string name="guide_relock_title">Relock Bootloader</string>
+    <string name="guide_tap_copy">Tap any command to copy it</string>
+    <string name="copied">Command copied</string>
+    <string name="guide_warning_relock">Relocking wipes your data and can permanently brick your phone if any firmware is modified. Only relock after restoring the fully stock system.</string>
+
+    <!-- MTK extract screen -->
+    <string name="mtk_title">MTK Boot Extractor</string>
+    <string name="mtk_header">MediaTek USB Bridge</string>
+    <string name="mtk_subtitle">Connect a MediaTek phone in BROM mode over USB-OTG to identify its chip and read boot.img. Stage 1 identifies the chip; extraction is experimental.</string>
+    <string name="mtk_status_idle">Idle</string>
+    <string name="mtk_status_waiting">Waiting for MTK device…</string>
+    <string name="mtk_status_connected">Connected: %1$s</string>
+    <string name="mtk_status_connecting">Connecting…</string>
+    <string name="mtk_status_failed">Connection failed</string>
+    <string name="mtk_btn_connect">Connect &amp; identify</string>
+    <string name="mtk_btn_extract">Extract boot.img</string>
+    <string name="mtk_btn_clear">Clear log</string>
+    <string name="mtk_log_empty">No activity yet.</string>
+    <string name="mtk_requires_otg">This phone needs USB-OTG support to talk to another device.</string>
+    <string name="mtk_permission_denied">USB permission denied.</string>
+    <string name="mtk_no_device">No MediaTek device detected. Enter BROM mode (power off, then hold Volume keys while plugging USB-OTG).</string>
+    <string name="mtk_open_failed">Could not open USB device.</string>
+    <string name="mtk_handshake_failed">Handshake failed. Reconnect the target and try again quickly.</string>
+    <string name="mtk_chip_identified">Identified %1$s (HW code 0x%2$04X, HW ver 0x%3$04X)</string>
+    <string name="mtk_extract_todo">Extraction requires a matching Download Agent and is not enabled in this build.</string>
+
+    <!-- Payload dumper screen -->
+    <string name="payload_title">Payload Dumper</string>
+    <string name="payload_header">OTA Payload Dumper</string>
+    <string name="payload_subtitle">Pick an Android OTA payload.bin, choose an output folder, and extract its partitions (boot, system, vendor and more).</string>
+    <string name="payload_label_payload">Payload file</string>
+    <string name="payload_label_output">Output folder</string>
+    <string name="payload_btn_payload">Select payload.bin</string>
+    <string name="payload_btn_output">Select output folder</string>
+    <string name="payload_btn_dump">Extract all partitions</string>
+    <string name="payload_btn_clear">Clear log</string>
+    <string name="payload_partitions_title">Partitions</string>
+    <string name="payload_none">No payload selected.</string>
+    <string name="payload_output_none">No output folder selected.</string>
+    <string name="payload_parsing">Reading payload…</string>
+    <string name="payload_parse_failed">Could not read payload: %1$s</string>
+    <string name="payload_partitions_ready">Ready — %1$d partitions found.</string>
+    <string name="payload_select_first">Select a payload.bin and an output folder first.</string>
+    <string name="payload_dumping">Dumping %1$s…</string>
+    <string name="payload_dumping_progress">Dumping %1$s… %2$s</string>
+    <string name="payload_done">Done. Extracted %1$d partitions.</string>
+    <string name="payload_failed">Dump failed: %1$s</string>
+    <string name="payload_log_empty">No activity yet.</string>
+    <string name="btn_payload_dumper">Extract OTA payload (payload.bin)</string>
+
+    <!-- Qualcomm EDL screen -->
+    <string name="edl_title">Qualcomm EDL Detector</string>
+    <string name="edl_header">Qualcomm EDL (9008)</string>
+    <string name="edl_subtitle">Connect a Qualcomm phone in EDL / Emergency Download mode (9008) over USB-OTG to identify its Sahara bootloader. This only identifies the device — it does not flash anything.</string>
+    <string name="edl_status_idle">Idle</string>
+    <string name="edl_status_waiting">Waiting for Qualcomm EDL device…</string>
+    <string name="edl_status_connected">Detected: %1$s</string>
+    <string name="edl_status_identified">Identified: %1$s</string>
+    <string name="edl_status_connecting">Connecting…</string>
+    <string name="edl_status_failed">Detection failed</string>
+    <string name="edl_btn_connect">Detect EDL device</string>
+    <string name="edl_btn_clear">Clear log</string>
+    <string name="edl_log_empty">No activity yet.</string>
+    <string name="edl_requires_otg">This phone needs USB-OTG support to talk to another device.</string>
+    <string name="edl_permission_denied">USB permission denied.</string>
+    <string name="edl_no_device">No Qualcomm EDL device detected. To enter EDL mode, power off the phone, then hold Volume Up + Volume Down while plugging in USB-OTG (a deep-flash cable or a dead-boot state may be required).</string>
+    <string name="edl_open_failed">Could not open USB device.</string>
+    <string name="edl_hello_failed">No Sahara HELLO received. The device may not be fully in EDL, or another process already took it over.</string>
+    <string name="btn_edl">Detect Qualcomm EDL (9008)</string>
+
+    <!-- Root / privileges screen -->
+    <string name="root_title">Root &amp; Privileges</string>
+    <string name="root_header">Root &amp; Privileges</string>
+    <string name="root_subtitle">Detect whether this phone is rooted (KernelSU, APatch, Magisk) and, when root is granted, run privileged commands to inspect partitions and system state.</string>
+    <string name="root_card_title">Root status</string>
+    <string name="root_status_unknown">Unknown</string>
+    <string name="root_status_checking">Checking…</string>
+    <string name="root_status_rooted">ROOTED</string>
+    <string name="root_status_not_rooted">NOT ROOTED</string>
+    <string name="root_manager_fmt">Manager: %1$s</string>
+    <string name="root_su_fmt">su path: %1$s</string>
+    <string name="root_version_fmt">Version: %1$s</string>
+    <string name="root_btn_check">Check root status</string>
+    <string name="root_btn_request">Request root access</string>
+    <string name="root_btn_block">List partitions</string>
+    <string name="root_btn_props">Device props</string>
+    <string name="root_btn_run">Run command</string>
+    <string name="root_command_hint">Command…</string>
+    <string name="root_log_empty">No activity yet.</string>
+    <string name="root_intro">Read/diagnostic by default. Commands run with su when root is granted.</string>
+    <string name="root_log_checking">Checking for su and root managers…</string>
+    <string name="root_log_requesting">Requesting root… if a prompt appears (KernelSU/Magisk/APatch), tap ALLOW. Waiting up to 60s…</string>
+    <string name="root_log_granted">Root granted (uid=0).</string>
+    <string name="root_log_denied">Root not granted: %1$s</string>
+    <string name="btn_root">Root &amp; Privileges</string>
+
+    <!-- Fastboot over OTG screen -->
+    <string name="fb_title">Fastboot (OTG)</string>
+    <string name="fb_header">Fastboot over USB-OTG</string>
+    <string name="fb_subtitle">Turn this phone into the host: connect another phone in fastboot/bootloader mode with a USB-OTG cable to read its info, unlock its bootloader or flash an image — no PC required.</string>
+    <string name="fb_status_idle">Idle</string>
+    <string name="fb_status_waiting">Waiting for fastboot device…</string>
+    <string name="fb_status_connected">Connected: %1$s</string>
+    <string name="fb_status_connected_generic">fastboot device</string>
+    <string name="fb_status_connecting">Connecting…</string>
+    <string name="fb_status_failed">Connection failed</string>
+    <string name="fb_btn_connect">Detect fastboot device</string>
+    <string name="fb_btn_unlock">Unlock bootloader (flashing unlock)</string>
+    <string name="fb_btn_unlock_critical">Unlock bootloader (critical)</string>
+    <string name="fb_btn_unlock_ability">Check unlock ability</string>
+    <string name="fb_btn_getvar_all">getvar all</string>
+    <string name="fb_btn_run_command">Run</string>
+    <string name="fb_command_hint">Fastboot command (e.g. getvar:all)</string>
+    <string name="fb_need_command">Type a fastboot command first.</string>
+    <string name="fb_running_command">Running: %1$s</string>
+    <string name="fb_ability_true">Unlock ability: YES — the bootloader will accept an unlock (OEM unlocking is on).</string>
+    <string name="fb_ability_false">Unlock ability: NO — OEM unlocking is off or not approved. Enable \"OEM unlocking\" in Developer options (Realme/Oppo also need Deep Testing approval) before unlocking.</string>
+    <string name="fb_ability_unknown">Unlock ability: unknown — this bootloader did not answer. It may not support flashing commands.</string>
+    <string name="fb_btn_reboot_bl">Reboot to bootloader</string>
+    <string name="fb_btn_reboot_sys">Reboot system</string>
+    <string name="fb_btn_pick">Pick image file</string>
+    <string name="fb_btn_flash">Flash to partition</string>
+    <string name="fb_partition_hint">Target partition (e.g. boot)</string>
+    <string name="fb_log_empty">No activity yet.</string>
+    <string name="fb_intro">Enter bootloader/fastboot mode on the target phone (usually Power + Volume keys), then connect it with a USB-OTG cable.</string>
+    <string name="fb_permission_denied">USB permission denied.</string>
+    <string name="fb_no_device">No fastboot device detected. Put the target phone in bootloader mode and reconnect.</string>
+    <string name="fb_open_failed">Could not open the fastboot USB interface.</string>
+    <string name="fb_not_connected">Not connected. Detect a fastboot device first.</string>
+    <string name="fb_unlock_title">Unlock bootloader?</string>
+    <string name="fb_unlock_warning">This ERASES all data on the target phone and voids its warranty. Confirm on the target screen afterwards. Continue?</string>
+    <string name="fb_unlock_confirm">Unlock</string>
+    <string name="fb_unlock_confirm_hint">If the target shows a confirmation screen, use its volume keys to choose \"Unlock\" and press power. The phone then wipes and reboots — tap \"Detect fastboot device\" again if you need to reconnect.</string>
+    <string name="fb_picked">Picked: %1$s (%2$d bytes)</string>
+    <string name="fb_need_partition">Enter a target partition name.</string>
+    <string name="fb_need_image">Pick an image file first.</string>
+    <string name="fb_flash_title">Flash %1$s</string>
+    <string name="fb_flash_warning">Write %1$s to partition "%2$s"? Flashing the wrong image can brick the phone.</string>
+    <string name="fb_flash_confirm">Flash</string>
+    <string name="fb_flashing">Flashing %1$s to %2$s (%3$d bytes)…</string>
+    <string name="fb_flash_failed">Flash failed: %1$s</string>
+    <string name="btn_fastboot">Fastboot over OTG (no PC)</string>
+
+    <!-- Universal Flasher (fastboot workstation) -->
+    <string name="uf_title">Universal Flasher</string>
+    <string name="uf_header">Universal Flasher</string>
+    <string name="uf_subtitle">Fastboot workstation: load an MTK scatter.txt or a Qualcomm rawprogram.xml, browse its partition table, then flash, erase or fetch images over USB-OTG — no PC required.</string>
+    <string name="uf_status_idle">Idle</string>
+    <string name="uf_status_connecting">Connecting…</string>
+    <string name="uf_status_waiting">Waiting for fastboot device…</string>
+    <string name="uf_log_ready">Ready. Load a partition map and an image, or just type a partition name.</string>
+    <string name="uf_btn_connect">Connect fastboot device</string>
+    <string name="uf_btn_map">Load partition map</string>
+    <string name="uf_btn_browse">Browse partitions</string>
+    <string name="uf_btn_pick">Pick image file</string>
+    <string name="uf_btn_flash">FLASH</string>
+    <string name="uf_btn_erase">ERASE</string>
+    <string name="uf_btn_fetch">FETCH</string>
+    <string name="uf_btn_reboot_bl">Reboot bootloader</string>
+    <string name="uf_btn_clear">Clear log</string>
+    <string name="uf_partition_hint">Partition (Browse or type, e.g. boot)</string>
+    <string name="uf_map_none">No partition map loaded. Load an MTK scatter.txt or a Qualcomm rawprogram.XML.</string>
+    <string name="uf_map_loaded">Map loaded: %1$d partitions (%2$s)</string>
+    <string name="uf_map_title">Select partition</string>
+    <string name="uf_map_empty">No flashable partitions found in this map.</string>
+    <string name="uf_bad_map">Could not read map: %1$s</string>
+    <string name="uf_picked_image">Image: %1$s (%2$s)</string>
+    <string name="uf_need_device">Connect a fastboot device first.</string>
+    <string name="uf_need_partition">Enter or select a partition name first.</string>
+    <string name="uf_need_image">Pick an image file first.</string>
+    <string name="uf_flashing_fmt">Flashing %1$s → %2$s (%3$s)…</string>
+    <string name="uf_erasing_fmt">Erasing %1$s…</string>
+    <string name="uf_fetching_fmt">Fetching %1$s…</string>
+    <string name="uf_op_failed">Operation failed: %1$s</string>
+    <string name="uf_erase_title">Erase partition?</string>
+    <string name="uf_erase_warn">Running "erase" on the wrong partition can make the phone unbootable. Target: %1$s. Continue?</string>
+    <string name="uf_erase_yes">Erase</string>
+    <string name="uf_progress_fmt">%1$s / %2$s</string>
+    <string name="btn_flasher">Universal Flasher (fastboot)</string>
+
+    <!-- EDL Firehose workstation -->
+    <string name="fh_title">EDL Firehose</string>
+    <string name="fh_header">EDL Firehose Flasher</string>
+    <string name="fh_subtitle">Qualcomm workstation: boot a firehose programmer (.elf/.mbn) into a phone in EDL 9008 mode, then erase, program or reset sectors — no QPST needed.</string>
+    <string name="fh_log_ready">Ready. Connect a phone in EDL (9008), pick a programmer, then boot it.</string>
+    <string name="fh_status_idle">Idle</string>
+    <string name="fh_status_connecting">Connecting…</string>
+    <string name="fh_status_ready">Programmer booted — firehose ready</string>
+    <string name="fh_btn_connect">Connect EDL device</string>
+    <string name="fh_btn_programmer">Pick programmer (.elf/.mbn)</string>
+    <string name="fh_btn_boot">Boot programmer</string>
+    <string name="fh_btn_configure">Configure</string>
+    <string name="fh_btn_map">Load partition map</string>
+    <string name="fh_btn_pick_image">Pick raw image</string>
+    <string name="fh_btn_program">PROGRAM</string>
+    <string name="fh_btn_erase">ERASE SECTORS</string>
+    <string name="fh_btn_readback">READBACK (dump sectors → file)</string>
+    <string name="fh_readback_fmt">Dumping %1$d sectors (physical %2$d)…</string>
+    <string name="fh_readback_saved">READBACK OKAY — dump saved (%1$s).</string>
+    <string name="fh_readback_failed">Readback failed: %1$s</string>
+    <string name="fh_btn_reset">RESET</string>
+    <string name="fh_memory_hint">Memory name</string>
+    <string name="fh_pagesize_hint">Page size</string>
+    <string name="fh_start_hint">Start sector</string>
+    <string name="fh_num_hint">Num sectors</string>
+    <string name="fh_phys_hint">Phys</string>
+    <string name="fh_need_connect">Connect the EDL device and boot a programmer first.</string>
+    <string name="fh_need_programmer">Pick a firehose programmer file first.</string>
+    <string name="fh_need_sectors">Enter start and number of sectors.</string>
+    <string name="fh_need_image">Pick a raw image file first.</string>
+    <string name="fh_boot_fmt">Booting programmer (%1$s)…</string>
+    <string name="fh_boot_done">Programmer booted.</string>
+    <string name="fh_boot_failed">Failed to boot programmer: %1$s</string>
+    <string name="fh_progress_fmt">%1$s / %2$s</string>
+    <string name="fh_reset_done">Reset sent — phone should leave EDL now.</string>
+    <string name="fh_picked_prog">Programmer: %1$s</string>
+    <string name="fh_picked_image">Image: %1$s</string>
+    <string name="fh_erase_title">Erase sectors?</string>
+    <string name="fh_erase_warn">This destroys the data at sectors %1$d + %2$d on physical partition %3$d. Continue?</string>
+    <string name="fh_erase_yes">Erase</string>
+    <string name="fh_program_title">Program sectors?</string>
+    <string name="fh_program_warn">Write %1$s at sector %2$d (%3$d sectors, physical %4$d)? Wrong data can brick the phone.</string>
+    <string name="fh_program_yes">Program</string>
+    <string name="btn_firehose">EDL Firehose Flasher</string>
+</resources>

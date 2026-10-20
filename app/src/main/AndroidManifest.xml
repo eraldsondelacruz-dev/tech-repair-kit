@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
+
+    <queries>
+        <package android:name="me.weishu.kernelsu" />
+        <package android:name="com.topjohnwu.magisk" />
+        <package android:name="io.github.huskydg.magisk" />
+        <package android:name="me.bmax.apatch" />
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".DecisionActivity"
+            android:exported="false"
+            android:label="@string/decision_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".GuideActivity"
+            android:exported="false"
+            android:label="@string/guide_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".PayloadDumperActivity"
+            android:exported="false"
+            android:label="@string/payload_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".MtkActivity"
+            android:exported="true"
+            android:label="@string/mtk_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
+
+        <activity
+            android:name=".EdlActivity"
+            android:exported="true"
+            android:label="@string/edl_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter_qualcomm" />
+        </activity>
+
+        <activity
+            android:name=".root.RootActivity"
+            android:exported="false"
+            android:label="@string/root_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".fastboot.FlasherActivity"
+            android:exported="false"
+            android:label="@string/uf_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".qualcomm.FirehoseActivity"
+            android:exported="false"
+            android:label="@string/fh_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".fastboot.FastbootActivity"
+            android:exported="true"
+            android:label="@string/fb_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter_fastboot" />
+        </activity>
+    </application>
+
+</manifest>
