@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tatskie Board View</string>
+    <string name="subtitle">Phone board schematics — pinch, zoom, repair</string>
+    <string name="import_files">Import file</string>
+    <string name="import_folder">Import folder</string>
+    <string name="search_hint">Search board name…</string>
+    <string name="empty_state">No boards yet.\nTap Import file or Import folder\nand any PNG/JPG/PDF lands here.</string>
+</resources>

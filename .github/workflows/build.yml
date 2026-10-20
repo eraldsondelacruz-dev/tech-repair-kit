@@ -38,12 +38,20 @@ jobs:
           set -o pipefail
           sh ./gradlew --version 2>&1 | tail -10
           sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|> Task.*(FAILED|failed)' ci-gradle.log | tail -n 25 | base64 -w 0 | head -c 3500)"; exit 1; }
+          cp schematics/build/outputs/apk/debug/app-debug.apk schematics-debug.apk
+          echo "schematics APK: $(ls -la schematics-debug.apk | awk '{print $5}') bytes"
 
-      - name: Upload APK artifact
+      - name: Upload APK artifact (Repair Kit)
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload APK artifact (Board View)
+        uses: actions/upload-artifact@v4
+        with:
+          name: schematics-debug
+          path: ./schematics-debug.apk
 
   telegram:
     needs: build
@@ -53,6 +61,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: app-debug
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: schematics-debug
           path: .
 
       - name: Secret X-ray
@@ -73,15 +85,23 @@ jobs:
             echo "Secrets not configured — skipping Telegram publish."
             exit 0
           fi
-          RESP=$(curl -sS --max-time 120 -X POST \
-            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
-            -F chat_id="${TELEGRAM_CHAT_ID}" \
-            -F document=@app-debug.apk \
-            -F caption="Tech Repair Kit ${GITHUB_REF#refs/tags/} — debug APK (bootloader workstation: fastboot flasher + EDL firehose + readback + FRP clear)")
-          echo "::notice title=TelegramResp-b64::$(printf '%s' "$RESP" | base64 -w 0)"
-          if printf '%s' "$RESP" | grep -q '"ok":true'; then
-            echo "Delivered OK."
-          else
-            echo "Telegram API rejected the upload — see TelegramResp-b64 annotation."
-            exit 1
-          fi
+          for f in app-debug.apk schematics-debug.apk; do
+            case "$f" in
+              app-debug.apk)
+                CAP="Tech Repair Kit ${GITHUB_REF#refs/tags/} — bootloader workstation: fastboot flasher + EDL firehose + readback + FRP clear + UNLOCK BL";;
+              schematics-debug.apk)
+                CAP="Tatskie Board View ${GITHUB_REF#refs/tags/} — schematic viewer: pinch-zoom bitmap + PDF pages + bookmarks + dim slider";;
+            esac
+            RESP=$(curl -sS --max-time 120 -X POST \
+              "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
+              -F chat_id="${TELEGRAM_CHAT_ID}" \
+              -F document=@$f \
+              -F caption="$CAP")
+            echo "::notice title=TelegramResp-$f-b64::$(printf '%s' "$RESP" | base64 -w 0)"
+            if printf '%s' "$RESP" | grep -q '"ok":true'; then
+              echo "$f delivered OK."
+            else
+              echo "Telegram API rejected $f — see TelegramResp-$f-b64 annotation."
+              exit 1
+            fi
+          done
