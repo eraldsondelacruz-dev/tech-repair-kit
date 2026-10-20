@@ -38,8 +38,8 @@ jobs:
           set -o pipefail
           sh ./gradlew --version 2>&1 | tail -10
           sh ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 120 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|FAILED|error:|Out of memory|BUILD FAILED' ci-gradle.log | tail -n 30 | base64 -w 0 | head -c 3500)"; exit 1; }
-          cp schematics/build/outputs/apk/debug/app-debug.apk schematics-debug.apk
-          echo "schematics APK: $(ls -la schematics-debug.apk | awk '{print $5}') bytes"
+          echo "Repair Kit APK: $(stat -c%s app/build/outputs/apk/debug/app-debug.apk) bytes"
+          echo "Board View APK: $(stat -c%s schematics/build/outputs/apk/debug/schematics-debug.apk) bytes"
 
       - name: Upload APK artifact (Repair Kit)
         uses: actions/upload-artifact@v4
@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: schematics-debug
-          path: ./schematics-debug.apk
+          path: schematics/build/outputs/apk/debug/schematics-debug.apk
 
   telegram:
     needs: build
@@ -66,6 +66,7 @@ jobs:
         with:
           name: schematics-debug
           path: .
+          merge-multiple: true
 
       - name: Secret X-ray
         env:
