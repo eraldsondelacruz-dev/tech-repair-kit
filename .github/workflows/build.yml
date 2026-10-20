@@ -37,7 +37,7 @@ jobs:
           export ANDROID_HOME
           set -o pipefail
           sh ./gradlew --version 2>&1 | tail -10
-          sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|> Task.*(FAILED|failed)' ci-gradle.log | tail -n 25 | base64 -w 0 | head -c 3500)"; exit 1; }
+          sh ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 120 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|FAILED|error:|Out of memory|BUILD FAILED' ci-gradle.log | tail -n 30 | base64 -w 0 | head -c 3500)"; exit 1; }
           cp schematics/build/outputs/apk/debug/app-debug.apk schematics-debug.apk
           echo "schematics APK: $(ls -la schematics-debug.apk | awk '{print $5}') bytes"
 
