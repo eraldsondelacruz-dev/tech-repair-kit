@@ -39,7 +39,8 @@ jobs:
           : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
           export ANDROID_HOME
           set -o pipefail
-          sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; exit 1; }
+          sh ./gradlew --version 2>&1 | tail -10
+          sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; echo "::error title=GradleTail-b64::$(tail -n 40 ci-gradle.log | base64 -w 0 | head -c 3500)"; exit 1; }
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
