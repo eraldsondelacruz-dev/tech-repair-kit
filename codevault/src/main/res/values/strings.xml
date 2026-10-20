@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tatskie Code Vault</string>
+    <string name="subtitle">Engineering &amp; service codes — tap to copy, long-press to share</string>
+    <string name="warning">\u26A0 Danger codes can WIPE the phone. Never dial them on a customer\'s unit.</string>
+    <string name="search_hint">Search code or name…</string>
+    <string name="all_brands">All</string>
+</resources>

@@ -40,6 +40,8 @@ jobs:
           sh ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 120 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|FAILED|error:|Out of memory|BUILD FAILED' ci-gradle.log | tail -n 30 | base64 -w 0 | head -c 3500)"; exit 1; }
           echo "Repair Kit APK: $(stat -c%s app/build/outputs/apk/debug/app-debug.apk) bytes"
           echo "Board View APK: $(stat -c%s schematics/build/outputs/apk/debug/schematics-debug.apk) bytes"
+          echo "Test Point APK: $(stat -c%s tpgallery/build/outputs/apk/debug/tpgallery-debug.apk) bytes"
+          echo "Code Vault APK: $(stat -c%s codevault/build/outputs/apk/debug/codevault-debug.apk) bytes"
 
       - name: Upload APK artifact (Repair Kit)
         uses: actions/upload-artifact@v4
@@ -53,6 +55,18 @@ jobs:
           name: schematics-debug
           path: schematics/build/outputs/apk/debug/schematics-debug.apk
 
+      - name: Upload APK artifact (Test Point)
+        uses: actions/upload-artifact@v4
+        with:
+          name: tpgallery-debug
+          path: tpgallery/build/outputs/apk/debug/tpgallery-debug.apk
+
+      - name: Upload APK artifact (Code Vault)
+        uses: actions/upload-artifact@v4
+        with:
+          name: codevault-debug
+          path: codevault/build/outputs/apk/debug/codevault-debug.apk
+
   telegram:
     needs: build
     if: github.ref_type == 'tag'
@@ -65,6 +79,16 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: schematics-debug
+          path: .
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: tpgallery-debug
+          path: .
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: codevault-debug
           path: .
           merge-multiple: true
 
@@ -86,12 +110,16 @@ jobs:
             echo "Secrets not configured — skipping Telegram publish."
             exit 0
           fi
-          for f in app-debug.apk schematics-debug.apk; do
+          for f in app-debug.apk schematics-debug.apk tpgallery-debug.apk codevault-debug.apk; do
             case "$f" in
               app-debug.apk)
                 CAP="Tech Repair Kit ${GITHUB_REF#refs/tags/} — bootloader workstation: fastboot flasher + EDL firehose + readback + FRP clear + UNLOCK BL";;
               schematics-debug.apk)
                 CAP="Tatskie Board View ${GITHUB_REF#refs/tags/} — schematic viewer: pinch-zoom bitmap + PDF pages + bookmarks + dim slider";;
+              tpgallery-debug.apk)
+                CAP="Tatskie Test Point ${GITHUB_REF#refs/tags/} — test point gallery: import board photos + pinch zoom + favorites + dark mode";;
+              codevault-debug.apk)
+                CAP="Tatskie Code Vault ${GITHUB_REF#refs/tags/} — 50+ engineering/service codes: Samsung/Xiaomi/Oppo/realme/Vivo/MTK/QC + danger flags + copy/share/dial";;
             esac
             RESP=$(curl -sS --max-time 120 -X POST \
               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
@@ -105,4 +133,5 @@ jobs:
               echo "Telegram API rejected $f — see TelegramResp-$f-b64 annotation."
               exit 1
             fi
+            sleep 3
           done

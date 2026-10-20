@@ -9,3 +9,5 @@ pluginManagement {
 rootProject.name = "Bootloaderunlocker"
 include(":app")
 include(":schematics")
+include(":tpgallery")
+include(":codevault")

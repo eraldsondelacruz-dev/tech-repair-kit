@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tatskie Test Point</string>
+    <string name="subtitle">Test point maps — zoom, mark, locate</string>
+    <string name="import_photos">Import photo</string>
+    <string name="import_folder">Import folder</string>
+    <string name="search_hint">Search model / brand…</string>
+    <string name="empty_state">No test points yet.\nImport photos of any board\'s test points\nand they land here.</string>
+</resources>
