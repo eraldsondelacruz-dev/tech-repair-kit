@@ -281,4 +281,6 @@
     <string name="fh_frp_confirm">frp partition located:\n\n• LBA start: %1$d\n• Sectors: %2$d\n\nErase it now?</string>
     <string name="fh_frp_yes">Erase FRP</string>
     <string name="fh_frp_no_gpt">frp partition not found — GPT unreadable or this model uses a different label.</string>
+
+    <string name="uf_btn_unlock">UNLOCK BL</string>
 </resources>

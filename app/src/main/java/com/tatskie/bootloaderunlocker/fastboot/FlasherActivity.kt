@@ -73,6 +73,7 @@ class FlasherActivity : AppCompatActivity() {
         binding.ufEraseButton.setOnClickListener { beginErase() }
         binding.ufFetchButton.setOnClickListener { beginFetch() }
         binding.ufFrpButton.setOnClickListener { beginEraseFrp() }
+        binding.ufUnlockButton.setOnClickListener { beginUnlock() }
         binding.ufRebootButton.setOnClickListener { beginReboot() }
         binding.ufClearButton.setOnClickListener {
             logLines.clear()
@@ -411,6 +412,28 @@ class FlasherActivity : AppCompatActivity() {
                     appendLog(
                         if (response.okay) "FRP ERASE OKAY — reboot the phone, the Google gate is gone."
                         else "FRP ERASE FAILED: ${response.display} (bootloader locked?)"
+                    )
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * UNLOCK BOOTLOADER — sends "flashing unlock". The phone wipes all data on
+     * success; the user confirms on the device screen itself (volume + power).
+     */
+    private fun beginUnlock() {
+        val t = transport ?: run { appendLog(getString(R.string.uf_need_device)); return }
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.fb_unlock_title))
+            .setMessage(getString(R.string.fb_unlock_warning))
+            .setPositiveButton(R.string.fb_unlock_confirm) { _, _ ->
+                executor.execute {
+                    val response = t.command("flashing unlock")
+                    appendLog(
+                        if (response.display.startsWith("OKAY") || response.okay) "UNLOCK SENT — confirm on the phone screen (volume + power). The phone will WIPE."
+                        else "UNLOCK: ${response.display} (some units need Deep Testing approval first)"
                     )
                 }
             }
