@@ -17,12 +17,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Build APK
+      - name: Accept SDK licenses
         run: |
           : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
           export ANDROID_HOME
           echo "Android SDK => $ANDROID_HOME"
-          ls "$ANDROID_HOME" | head -6
+          ls "$ANDROID_HOME" 2>/dev/null | head -6
+          if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+            echo "Licenses accepted."
+          else
+            echo "sdkmanager not found at $ANDROID_HOME/cmdline-tools/latest"
+          fi
+          echo "Platforms:"; ls "$ANDROID_HOME/platforms" 2>/dev/null
+
+      - name: Build APK
+        run: |
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          export ANDROID_HOME
           sh ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK artifact
