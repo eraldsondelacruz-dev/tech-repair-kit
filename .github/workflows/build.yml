@@ -57,16 +57,16 @@ jobs:
 
       - name: Secret X-ray
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.KIT }}
+          TELEGRAM_CHAT_ID: ${{ secrets.CHAT }}
         run: |
           S="tok=$([ -n "$TELEGRAM_BOT_TOKEN" ] && echo yes || echo NO) chat=$([ -n "$TELEGRAM_CHAT_ID" ] && echo yes || echo NO)"
           echo "::notice title=SecretXray-b64::$(printf '%s' "$S" | base64 -w 0)"
 
       - name: Send to Telegram
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.KIT }}
+          TELEGRAM_CHAT_ID: ${{ secrets.CHAT }}
         run: |
           if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
             echo "::notice title=TelegramResp-b64::$(printf 'missing-secrets' | base64 -w 0)"
