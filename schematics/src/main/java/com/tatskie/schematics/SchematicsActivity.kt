@@ -23,10 +23,34 @@ class SchematicsActivity : AppCompatActivity() {
     private val entries = JSONArray()
     private val visibleIndices = mutableListOf<Int>()
 
+    private fun seedDemo() {
+        val arr = BoardStore.load(this)
+        if (arr.length() > 0) return
+        try {
+            val dst = java.io.File(BoardStore.boardsDir(this), "demo_board.png")
+            if (!dst.exists()) {
+                assets.open("demo_board.png").use { input ->
+                    dst.outputStream().use { output -> input.copyTo(output) }
+                }
+            }
+            val entry = org.json.JSONObject()
+            entry.put("title", "Demo board — pinch me!")
+            entry.put("file", "demo_board.png")
+            entry.put("type", "img")
+            entry.put("fav", false)
+            val newArr = org.json.JSONArray()
+            newArr.put(entry)
+            for (i in 0 until arr.length()) newArr.put(arr.getJSONObject(i))
+            BoardStore.save(this, newArr)
+        } catch (e: Exception) {
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySchematicsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        seedDemo()
 
         binding.btnImportFile.setOnClickListener { pickFiles() }
         binding.btnImportFolder.setOnClickListener { pickFolder() }
