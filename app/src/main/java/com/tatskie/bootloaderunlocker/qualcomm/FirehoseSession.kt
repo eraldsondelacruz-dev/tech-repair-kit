@@ -1,5 +1,6 @@
 package com.tatskie.bootloaderunlocker.qualcomm
 
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -7,12 +8,13 @@ import java.io.OutputStream
  * Speaks the classic Firehose XML-over-bulk protocol with a programmer that was
  * booted through Sahara. Supports the frames a repair tech needs:
  *
- *   nop       – sanity ping (also satisfies some programmers that must first see text)
- *   configure – sets memory name / page size / payload size
- *   program   – writes a raw image at a given start sector
- *   erase     – erases a sector range
- *   readback  – streams a sector range out of the device (backup discipline!)
- *   reset     – tells the device to reboot out of EDL
+ *   nop        – sanity ping (also satisfies some programmers that must first see text)
+ *   configure  – sets memory name / page size / payload size
+ *   program    – writes a raw image at a given start sector
+ *   erase      – erases a sector range
+ *   readback   – streams a sector range out of the device (backup discipline!)
+ *   gptEntries – decodes the on-disk GPT into named partitions
+ *   reset      – tells the device to reboot out of EDL
  *
  * All frames are wrapped with newlines exactly the way the original Qualcomm
  * firehose host tools do the handshake.
@@ -25,6 +27,14 @@ class FirehoseSession(
     var memoryName: String = "eMMC"
     var sectorSize: Int = DEFAULT_SECTOR_SIZE
     var currentPageSize: Int = DEFAULT_PAGE_SIZE
+
+    /** One line of the on-disk GPT: partition label plus its sector footprint. */
+    data class GptEntry(
+        val name: String,
+        val firstLba: Long,
+        val numLba: Long
+    )
+
 
     /** Sanity ping: proves the programmer prints firehose XML. */
     fun nop(): Boolean {
@@ -271,10 +281,81 @@ class FirehoseSession(
         else -> "${bytes} B"
     }
 
+    /**
+     * Reads the GPT partition table from LBA1 and hands every entry back as
+     * [GptEntry]. Works on any storage whose disk sector size the configure
+     * step reported. Returns null when the table is unreadable or laid out
+     * differently than the standard (entry LBA must follow the header).
+     */
+    fun gptEntries(): List<GptEntry>? {
+        val out = ByteArrayOutputStream()
+        val ok = readback(1, GPT_TABLE_SECTORS, 0, out)
+        if (!ok) {
+            log("GPT readback failed — cannot enumerate partitions.")
+            return null
+        }
+        val buf = out.toByteArray()
+        if (buf.size < 4 || String(buf, Charsets.US_ASCII).startsWith("EFI PART").not()) {
+            log("GPT header signature not found.")
+            return null
+        }
+        if (buf.size < 96) {
+            log("GPT header truncated.")
+            return null
+        }
+        val entryLba = leLong(buf, 72)
+        val entryCount = leInt(buf, 80)
+        val entrySize = leInt(buf, 84)
+        if (entryLba <= 1 || entrySize !in 16..512) return null
+        val tableOffset = ((entryLba - 1) * sectorSize).toLong()
+        if (tableOffset < 0 || tableOffset + entryCount.toLong() * entrySize > buf.size) {
+            log("Partition entries outside the readback window (entryLba=$entryLba).")
+            return null
+        }
+        val entries = ArrayList<GptEntry>()
+        for (i in 0 until entryCount) {
+            val at = (tableOffset + i.toLong() * entrySize).toInt()
+            if (at + entrySize > buf.size) break
+            var empty = true
+            for (j in 0 until 16) {
+                if (buf[at + j] != 0.toByte()) {
+                    empty = false
+                    break
+                }
+            }
+            if (empty) break
+            val first = leLong(buf, at + 32)
+            val last = leLong(buf, at + 40)
+            val name = String(buf, at + 56, 72, Charsets.UTF_16LE).trim('\u0000').trim()
+            if (name.isNotBlank()) {
+                entries.add(GptEntry(name, first, last - first + 1))
+            }
+        }
+        log("GPT extracted: ${entries.size} named partitions.")
+        return entries
+    }
+
+    private fun leLong(buf: ByteArray, at: Int): Long =
+        (buf[at].toLong() and 0xFF) or
+            ((buf[at + 1].toLong() and 0xFF) shl 8) or
+            ((buf[at + 2].toLong() and 0xFF) shl 16) or
+            ((buf[at + 3].toLong() and 0xFF) shl 24) or
+            ((buf[at + 4].toLong() and 0xFF) shl 32) or
+            ((buf[at + 5].toLong() and 0xFF) shl 40) or
+            ((buf[at + 6].toLong() and 0xFF) shl 48) or
+            ((buf[at + 7].toLong() and 0xFF) shl 56)
+
+    private fun leInt(buf: ByteArray, at: Int): Int =
+        (buf[at].toInt() and 0xFF) or
+            ((buf[at + 1].toInt() and 0xFF) shl 8) or
+            ((buf[at + 2].toInt() and 0xFF) shl 16) or
+            ((buf[at + 3].toInt() and 0xFF) shl 24)
+
     companion object {
         const val DEFAULT_SECTOR_SIZE = 512
         const val DEFAULT_PAGE_SIZE = 4096
         const val DEFAULT_MAX_PAYLOAD = 16384
         private const val CHUNK_SIZE = 64 * 1024
+        private const val GPT_TABLE_SECTORS = 34L
     }
 }

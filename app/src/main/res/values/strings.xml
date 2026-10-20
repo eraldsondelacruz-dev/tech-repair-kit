@@ -268,4 +268,17 @@
     <string name="fh_program_warn">Write %1$s at sector %2$d (%3$d sectors, physical %4$d)? Wrong data can brick the phone.</string>
     <string name="fh_program_yes">Program</string>
     <string name="btn_firehose">EDL Firehose Flasher</string>
+
+    <string name="uf_btn_frp">ERASE FRP</string>
+    <string name="fb_frp_title">FRP CLEAR (fastboot)</string>
+    <string name="fb_frp_warning">Erases the frp partition (Factory Reset Protection) on the phone in fastboot mode.\n\nUse only on a device whose owner consented — after this the Google account gate is cleared and the phone boots to a clean setup wizard.\n\nThe bootloader must be unlocked for the erase to be honored.</string>
+    <string name="fb_frp_yes">Erase FRP</string>
+
+    <string name="fh_btn_frp">FRP CLEAR</string>
+    <string name="fh_frp_title">FRP CLEAR (EDL)</string>
+    <string name="fh_frp_warning">Reads the on-disk GPT first, locates the frp partition, then wipes its sector range over EDL — no manual sector numbers needed.\n\nUse only on a device whose owner consented. The Google account gate clears after reboot.</string>
+    <string name="fh_frp_scan">Scan GPT for frp</string>
+    <string name="fh_frp_confirm">frp partition located:\n\n• LBA start: %1$d\n• Sectors: %2$d\n\nErase it now?</string>
+    <string name="fh_frp_yes">Erase FRP</string>
+    <string name="fh_frp_no_gpt">frp partition not found — GPT unreadable or this model uses a different label.</string>
 </resources>

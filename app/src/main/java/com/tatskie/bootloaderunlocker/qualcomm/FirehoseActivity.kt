@@ -78,6 +78,7 @@ class FirehoseActivity : AppCompatActivity() {
         binding.fhProgramButton.setOnClickListener { beginProgram() }
         binding.fhEraseButton.setOnClickListener { beginErase() }
         binding.fhReadbackButton.setOnClickListener { beginReadback() }
+        binding.fhFrpButton.setOnClickListener { beginFrpClear() }
         binding.fhResetButton.setOnClickListener { beginReset() }
         binding.fhClearButton.setOnClickListener {
             logLines.clear()
@@ -448,9 +449,57 @@ class FirehoseActivity : AppCompatActivity() {
         startActivityForResult(dumpIntent, REQ_SAVE_DUMP)
     }
 
-    /** Streams the pending sector range through the session into the SAF file. */
-    private fun dumpTo(uri: Uri) {
+    /**
+     * FRP CLEAR — reads the on-disk GPT, locates the frp partition and wipes
+     * its sector range after an explicit confirmation. Works on any Qualcomm
+     * booted with a matching programmer; no guesswork about sector numbers.
+     */
+    private fun beginFrpClear() {
         val s = session ?: run { appendLog(getString(R.string.fh_need_connect)); return }
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.fh_frp_title))
+            .setMessage(getString(R.string.fh_frp_warning))
+            .setPositiveButton(R.string.fh_frp_scan) { _, _ ->
+                executor.execute {
+                    val entries = s.gptEntries()
+                    if (entries == null) {
+                        appendLog(getString(R.string.fh_frp_no_gpt))
+                        return@execute
+                    }
+                    val frp = entries.firstOrNull {
+                        it.name.equals("frp", ignoreCase = true) ||
+                            it.name.equals("frp_a", ignoreCase = true) ||
+                            it.name.equals("xbl_frp", ignoreCase = true)
+                    }
+                    if (frp == null) {
+                        appendLog(getString(R.string.fh_frp_no_gpt))
+                        return@execute
+                    }
+                    appendLog("frp located: LBA ${frp.firstLba}, ${frp.numLba} sectors.")
+                    mainHandler.post {
+                        AlertDialog.Builder(this@FirehoseActivity)
+                            .setTitle(getString(R.string.fh_frp_title))
+                            .setMessage(getString(R.string.fh_frp_confirm, frp.firstLba, frp.numLba))
+                            .setPositiveButton(R.string.fh_frp_yes) { _, _ ->
+                                executor.execute {
+                                    val ok = s.erase(frp.firstLba, frp.numLba, 0)
+                                    appendLog(
+                                        if (ok) "FRP ERASE OKAY — reboot the phone, the Google gate is gone."
+                                        else "FRP ERASE FAILED."
+                                    )
+                                }
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Streams the pending sector range through the session into the SAF file. */
+    private fun dumpTo(uri: Uri) {        val s = session ?: run { appendLog(getString(R.string.fh_need_connect)); return }
         val (start, num, phys) = pendingReadback ?: Triple(0L, 0L, 0)
         pendingReadback = null
         if (num <= 0L) { appendLog(getString(R.string.fh_need_connect)); return }

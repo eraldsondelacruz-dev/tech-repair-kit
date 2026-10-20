@@ -72,6 +72,7 @@ class FlasherActivity : AppCompatActivity() {
         binding.ufFlashButton.setOnClickListener { beginFlash() }
         binding.ufEraseButton.setOnClickListener { beginErase() }
         binding.ufFetchButton.setOnClickListener { beginFetch() }
+        binding.ufFrpButton.setOnClickListener { beginEraseFrp() }
         binding.ufRebootButton.setOnClickListener { beginReboot() }
         binding.ufClearButton.setOnClickListener {
             logLines.clear()
@@ -392,6 +393,29 @@ class FlasherActivity : AppCompatActivity() {
             val response = t.rebootBootloader()
             appendLog("reboot-bootloader: ${response.display}")
         }
+    }
+
+    /**
+     * FRP CLEAR over fastboot — erases the frp partition straight away. The
+     * bootloader must be unlocked for the erase to be honored; the response
+     * tells the truth either way.
+     */
+    private fun beginEraseFrp() {
+        val t = transport ?: run { appendLog(getString(R.string.uf_need_device)); return }
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.fb_frp_title))
+            .setMessage(getString(R.string.fb_frp_warning))
+            .setPositiveButton(R.string.fb_frp_yes) { _, _ ->
+                executor.execute {
+                    val response = t.command("erase:frp")
+                    appendLog(
+                        if (response.okay) "FRP ERASE OKAY — reboot the phone, the Google gate is gone."
+                        else "FRP ERASE FAILED: ${response.display} (bootloader locked?)"
+                    )
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // ---------------------------------------------------------------------
