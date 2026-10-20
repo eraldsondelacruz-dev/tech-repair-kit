@@ -40,7 +40,7 @@ jobs:
           export ANDROID_HOME
           set -o pipefail
           sh ./gradlew --version 2>&1 | tail -10
-          sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; echo "::error title=GradleTail-b64::$(tail -n 40 ci-gradle.log | base64 -w 0 | head -c 3500)"; exit 1; }
+          sh ./gradlew assembleDebug --stacktrace 2>&1 | tee ci-gradle.log || { tail -n 80 ci-gradle.log; echo "::error title=GradleCauses::$(grep -aE '^\* What went wrong|^Caused by|^Reason:|^Execution failed|Specification|configuration file|Could not|Failed to|> Task.*(FAILED|failed)' ci-gradle.log | tail -n 25 | base64 -w 0 | head -c 3500)"; exit 1; }
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
