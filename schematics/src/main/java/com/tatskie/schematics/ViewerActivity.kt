@@ -29,6 +29,10 @@ class ViewerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         index = intent.getIntExtra("idx", -1)
+        if (index < 0 && intent.data != null) {
+            verifyShareIn()
+            return
+        }
         if (index < 0) {
             finish()
             return
@@ -90,6 +94,71 @@ class ViewerActivity : AppCompatActivity() {
 
     private fun setFavIcon() {
         binding.btnFav.text = if (entry.optBoolean("fav", false)) "⭐" else "☆"
+    }
+
+    private fun verifyShareIn() {
+        val uri = intent.data ?: run { finish(); return }
+        binding.titleText.text = uri.lastPathSegment?.substringAfterLast('/') ?: "Shared file"
+        binding.btnFav.visibility = android.view.View.INVISIBLE
+        binding.btnBack.setOnClickListener { finish() }
+        val mime = contentResolver.getType(uri) ?: ""
+        if (mime.contains("pdf")) {
+            try {
+                pfd = contentResolver.openFileDescriptor(uri, "r")
+                renderer = pfd?.let { PdfRenderer(it) }
+                showPage(0)
+                binding.btnPagePrev.setOnClickListener { if (page > 0) showPage(page - 1) }
+                binding.btnPageNext.setOnClickListener {
+                    val count = renderer?.pageCount ?: 1
+                    if (page < count - 1) showPage(page + 1)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Cannot open PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                finish()
+                return
+            }
+        } else {
+            binding.pageText.text = ""
+            binding.btnPagePrev.visibility = View.INVISIBLE
+            binding.btnPageNext.visibility = View.INVISIBLE
+            val bmp = decodeStreamSampled(uri)
+            if (bmp == null) {
+                Toast.makeText(this, "Cannot open image", Toast.LENGTH_LONG).show()
+                finish()
+                return
+            }
+            binding.zoomView.setBitmap(bmp)
+        }
+        binding.dimBar.max = 100
+        binding.dimBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (progress <= 0) {
+                    binding.dimOverlay.visibility = View.GONE
+                    binding.dimOverlay.alpha = 0f
+                } else {
+                    binding.dimOverlay.visibility = View.VISIBLE
+                    binding.dimOverlay.alpha = progress / 100f * 0.8f
+                }
+            }
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
+    }
+
+    private fun decodeStreamSampled(uri: android.net.Uri): Bitmap? {
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+            if (bounds.outWidth <= 0) null
+            else {
+                val opts = BitmapFactory.Options().apply {
+                    inSampleSize = maxOf(bounds.outWidth / 3000, bounds.outHeight / 3000).coerceAtLeast(1)
+                }
+                contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, opts) }
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun openRenderer() {
