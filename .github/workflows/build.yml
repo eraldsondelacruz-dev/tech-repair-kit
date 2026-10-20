@@ -17,22 +17,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Accept SDK licenses
+      - name: Prepare Android SDK
         run: |
           : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
           export ANDROID_HOME
-          echo "Android SDK => $ANDROID_HOME"
-          ls "$ANDROID_HOME" 2>/dev/null | head -8
-          if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
-            echo "Licenses accepted."
-          else
-            echo "FATAL: sdkmanager not found at $ANDROID_HOME/cmdline-tools/latest"
-            ls -la /usr/local/lib/android 2>/dev/null || true
-            ls /opt/hostedtoolcache 2>/dev/null || true
-            exit 1
-          fi
-          echo "Platforms:"; ls "$ANDROID_HOME/platforms" 2>/dev/null
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKM" || { echo "FATAL: sdkmanager missing at $SDKM"; exit 1; }
+          yes | "$SDKM" --licenses > /dev/null 2>&1 || true
+          echo "Reinstalling platforms;android-35 (runner ships a corrupt android.jar)"
+          "$SDKM" --uninstall "platforms;android-35" > /dev/null 2>&1 || true
+          yes | "$SDKM" "platforms;android-35" > /dev/null
+          unzip -t "$ANDROID_HOME/platforms/android-35/android.jar" > /dev/null \
+            && echo "android.jar integrity OK" \
+            || { echo "FATAL: android.jar STILL corrupt"; ls -la "$ANDROID_HOME/platforms/android-35/"; exit 1; }
 
       - name: Build APK
         run: |
