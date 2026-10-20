@@ -18,9 +18,12 @@ jobs:
           java-version: '17'
 
       - name: Build APK
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          export ANDROID_HOME
+          echo "Android SDK => $ANDROID_HOME"
+          ls "$ANDROID_HOME" | head -6
+          sh ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
