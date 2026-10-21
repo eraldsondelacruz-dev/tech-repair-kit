@@ -42,6 +42,7 @@ jobs:
           echo "Board View APK: $(stat -c%s schematics/build/outputs/apk/debug/schematics-debug.apk) bytes"
           echo "Test Point APK: $(stat -c%s tpgallery/build/outputs/apk/debug/tpgallery-debug.apk) bytes"
           echo "Code Vault APK: $(stat -c%s codevault/build/outputs/apk/debug/codevault-debug.apk) bytes"
+          echo "ApkX APK: $(stat -c%s apkx/build/outputs/apk/debug/apkx-debug.apk) bytes"
 
       - name: Upload APK artifact (Repair Kit)
         uses: actions/upload-artifact@v4
@@ -67,6 +68,12 @@ jobs:
           name: codevault-debug
           path: codevault/build/outputs/apk/debug/codevault-debug.apk
 
+      - name: Upload APK artifact (ApkX)
+        uses: actions/upload-artifact@v4
+        with:
+          name: apkx-debug
+          path: apkx/build/outputs/apk/debug/apkx-debug.apk
+
   telegram:
     needs: build
     if: github.ref_type == 'tag'
@@ -91,6 +98,11 @@ jobs:
           name: codevault-debug
           path: .
           merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: apkx-debug
+          path: .
+          merge-multiple: true
 
       - name: Secret X-ray
         env:
@@ -110,7 +122,7 @@ jobs:
             echo "Secrets not configured — skipping Telegram publish."
             exit 0
           fi
-          for f in app-debug.apk schematics-debug.apk tpgallery-debug.apk codevault-debug.apk; do
+          for f in app-debug.apk schematics-debug.apk tpgallery-debug.apk codevault-debug.apk apkx-debug.apk; do
             case "$f" in
               app-debug.apk)
                 CAP="Tech Repair Kit ${GITHUB_REF#refs/tags/} — bootloader workstation: fastboot flasher + EDL firehose + readback + FRP clear + UNLOCK BL";;
@@ -120,6 +132,8 @@ jobs:
                 CAP="Tatskie Test Point ${GITHUB_REF#refs/tags/} — test point gallery: import board photos + pinch zoom + favorites + dark mode";;
               codevault-debug.apk)
                 CAP="Tatskie Code Vault ${GITHUB_REF#refs/tags/} — 50+ engineering/service codes: Samsung/Xiaomi/Oppo/realme/Vivo/MTK/QC + danger flags + copy/share/dial";;
+              apkx-debug.apk)
+                CAP="Tatskie ApkX ${GITHUB_REF#refs/tags/} — APK extractor: pull base + all splits, engine juice reports (Flutter/Unity/PDF/OpenCV), pm paths + share";;
             esac
             RESP=$(curl -sS --max-time 120 -X POST \
               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
