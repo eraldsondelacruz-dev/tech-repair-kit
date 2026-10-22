@@ -11,8 +11,8 @@ android {
         applicationId = "com.tatskie.schematics"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 7
+        versionName = "1.7"
     }
 
     buildTypes {

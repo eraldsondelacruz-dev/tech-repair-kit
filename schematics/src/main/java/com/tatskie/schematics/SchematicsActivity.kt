@@ -54,6 +54,9 @@ class SchematicsActivity : AppCompatActivity() {
 
         binding.btnImportFile.setOnClickListener { pickFiles() }
         binding.btnImportFolder.setOnClickListener { pickFolder() }
+        binding.btnAutoLibrary.setOnClickListener {
+            startActivity(Intent(this, LibraryActivity::class.java))
+        }
 
         binding.searchBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}

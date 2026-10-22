@@ -98,4 +98,54 @@ object BoardStore {
         save(context, arr)
         return newFav
     }
+
+    fun importFile(context: Context, src: java.io.File, title: String, libSrc: String): JSONObject? {
+        val lower = src.name.lowercase()
+        val isPdf = lower.endsWith(".pdf")
+        val ext = if (lower.contains('.')) lower.substringAfterLast('.') else "png"
+        val name = "${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}.$ext"
+        val dst = java.io.File(boardsDir(context), name)
+        return try {
+            src.copyTo(dst, overwrite = true)
+            val entry = JSONObject()
+            entry.put("title", title)
+            entry.put("file", name)
+            entry.put("type", if (isPdf) "pdf" else "img")
+            entry.put("fav", false)
+            entry.put("libSrc", libSrc)
+            if (isPdf) {
+                var pages = 1
+                try {
+                    android.os.ParcelFileDescriptor.open(
+                        dst,
+                        android.os.ParcelFileDescriptor.MODE_READ_ONLY
+                    ).use { pfd ->
+                        val r = android.graphics.pdf.PdfRenderer(pfd)
+                        pages = r.pageCount
+                        r.close()
+                    }
+                } catch (e: Exception) {
+                    pages = 1
+                }
+                entry.put("pages", pages)
+            }
+            val arr = load(context)
+            val newArr = JSONArray()
+            newArr.put(entry)
+            for (i in 0 until arr.length()) newArr.put(arr.getJSONObject(i))
+            save(context, newArr)
+            entry
+        } catch (e: Exception) {
+            dst.delete()
+            null
+        }
+    }
+
+    fun indexOfTitle(context: Context, title: String): Int {
+        val arr = load(context)
+        for (i in 0 until arr.length()) {
+            if (arr.getJSONObject(i).optString("title", "") == title) return i
+        }
+        return -1
+    }
 }

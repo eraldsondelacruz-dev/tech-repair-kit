@@ -4,6 +4,21 @@
     <string name="subtitle">Phone board schematics — pinch, zoom, repair</string>
     <string name="import_files">Import file</string>
     <string name="import_folder">Import folder</string>
+    <string name="open_auto_library">Ⓐ Auto-Library</string>
     <string name="search_hint">Search board name…</string>
     <string name="empty_state">No boards yet.\nTap Import file or Import folder\nand any PNG/JPG/PDF lands here.</string>
+    <string name="library_title">Auto-Library</string>
+    <string name="library_subtitle">Sync once — read offline forever</string>
+    <string name="sync_now">Sync now</string>
+    <string name="lib_lane">Lane</string>
+    <string name="lib_search">Search library…</string>
+    <string name="lib_empty">Nothing here yet.\nTap Lane, point it at a library.json,\nthen Sync now.</string>
+    <string name="sync_running">Syncing…</string>
+    <string name="sync_done">Done — %1$d update(s)</string>
+    <string name="sync_failed">Sync failed: %1$s</string>
+    <string name="lane_chip_github">GitHub CDN</string>
+    <string name="lane_chip_telegram">Telegram bot</string>
+    <string name="library_hint_github_url">https://raw.githubusercontent.com/…/library.json</string>
+    <string name="library_hint_bot_token">123456:ABC-DEF… bot token</string>
+    <string name="library_hint_file_id">library.json file_id from the bot</string>
 </resources>
