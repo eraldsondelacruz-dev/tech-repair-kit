@@ -4,7 +4,7 @@ set -u
 PREFIX=/data/data/com.termux/files/usr
 PY="$PREFIX/bin/python"
 MC="$HOME/mtkclient"
-SELF="$HOME/a55.sh"
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
 banner() {
   echo
@@ -15,6 +15,15 @@ banner() {
   echo "$1"
   echo
 }
+
+if [ "$(id -u)" = "0" ]; then
+  banner "WRONG SHELL DETECTED"
+  echo "You are ROOT (su). This script must run in the NORMAL Termux shell -"
+  echo "it escalates su itself for the mtk steps."
+  echo "Type 'exit' to leave root, then rerun:"
+  echo "  bash /data/data/com.termux/files/home/a55.sh $*"
+  exit 1
+fi
 
 mrun() {
   su -c "LD_LIBRARY_PATH=$PREFIX/lib $PY $*"
@@ -85,7 +94,7 @@ install_all() {
 }
 
 handshake() {
-  banner "BROM HANDSHAKE"
+  banner "BROM HANDSHAKE  (NO su - the script escalates itself)"
   echo "PREP CHECKLIST:"
   echo "  1) A55 back cover OFF"
   echo "  2) BATTERY CONNECTOR OFF  (bare power boots BROM, no buttons needed)"
@@ -93,11 +102,12 @@ handshake() {
   echo "  4) A55 must show NO screen (fully off)"
   echo
   echo ">>> starting payload - PLUG THE CABLE the moment it waits for device"
+  echo ">>> you will be asked for su permission by pop-up/root at each mtk step"
   echo
   sleep 3
   mrun "$MC/mtk" payload
   echo
-  echo "[CHECK] Handshake accepted = next:  su, then:  bash $SELF wipe"
+  echo "[CHECK] Handshake accepted = next:  bash $SELF wipe   (same normal shell)"
 }
 
 wipe() {
@@ -135,7 +145,8 @@ case "${1:-}" in
   wipe)     wipe ;;
   *)
     banner "usage: bash $SELF {install | sanity | handshake | wipe}"
+    echo "IMPORTANT: stay in the NORMAL Termux shell - never su"
     echo "run order:  install  ->  handshake  ->  wipe"
-    echo "handshake and wipe need ROOT: type su first, then bash $SELF handshake"
+    echo "the script calls su itself for the mtk erase steps"
     ;;
 esac
