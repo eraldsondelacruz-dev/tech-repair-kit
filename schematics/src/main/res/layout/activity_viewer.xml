@@ -99,4 +99,57 @@
             android:layout_weight="1"
             android:contentDescription="@string/subtitle" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/zoomPad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="72dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnZoomMinus"
+            style="@style/ViewerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="44dp"
+            android:text="-"
+            android:textColor="@color/textMain" />
+
+        <TextView
+            android:id="@+id/zoomText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="60dp"
+            android:text="100%"
+            android:textColor="@color/accent" />
+
+        <Button
+            android:id="@+id/btnZoomPlus"
+            style="@style/ViewerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="44dp"
+            android:text="+"
+            android:textColor="@color/textMain" />
+
+        <Button
+            android:id="@+id/btnZoomFit"
+            style="@style/ViewerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FIT"
+            android:textAllCaps="false"
+            android:textColor="@color/textMain" />
+
+        <Button
+            android:id="@+id/btnZoomOne"
+            style="@style/ViewerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1:1"
+            android:textColor="@color/textMain" />
+    </LinearLayout>
 </FrameLayout>

@@ -99,7 +99,13 @@ object BoardStore {
         return newFav
     }
 
-    fun importFile(context: Context, src: java.io.File, title: String, libSrc: String): JSONObject? {
+    fun importFile(
+        context: Context,
+        src: java.io.File,
+        title: String,
+        libSrc: String,
+        folder: String = ""
+    ): JSONObject? {
         val lower = src.name.lowercase()
         val isPdf = lower.endsWith(".pdf")
         val ext = if (lower.contains('.')) lower.substringAfterLast('.') else "png"

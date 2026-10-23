@@ -25,23 +25,40 @@ class SchematicsActivity : AppCompatActivity() {
 
     private fun seedDemo() {
         val arr = BoardStore.load(this)
-        if (arr.length() > 0) return
         try {
+            val src = assets.open("demo_board.png")
+            val assetLen = src.available().toLong()
+            src.close()
             val dst = java.io.File(BoardStore.boardsDir(this), "demo_board.png")
-            if (!dst.exists()) {
+            val stale = dst.exists() && dst.length() != assetLen
+            if (!dst.exists() || stale) {
                 assets.open("demo_board.png").use { input ->
                     dst.outputStream().use { output -> input.copyTo(output) }
                 }
             }
-            val entry = org.json.JSONObject()
-            entry.put("title", "Demo board — pinch me!")
-            entry.put("file", "demo_board.png")
-            entry.put("type", "img")
-            entry.put("fav", false)
-            val newArr = org.json.JSONArray()
-            newArr.put(entry)
-            for (i in 0 until arr.length()) newArr.put(arr.getJSONObject(i))
-            BoardStore.save(this, newArr)
+            if (arr.length() == 0) {
+                val entry = org.json.JSONObject()
+                entry.put("title", "Demo board — pinch me!")
+                entry.put("file", "demo_board.png")
+                entry.put("type", "img")
+                entry.put("fav", false)
+                val newArr = org.json.JSONArray()
+                newArr.put(entry)
+                for (i in 0 until arr.length()) newArr.put(arr.getJSONObject(i))
+                BoardStore.save(this, newArr)
+            } else if (stale) {
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    if (o.optString("file") == "demo_board.png") {
+                        o.put(
+                            "title",
+                            "Demo board — pinch me! (v2 sharp)"
+                        )
+                        arr.put(i, o)
+                    }
+                }
+                BoardStore.save(this, arr)
+            }
         } catch (e: Exception) {
         }
     }
@@ -91,36 +108,65 @@ class SchematicsActivity : AppCompatActivity() {
             if (query.isNotEmpty() && !title.contains(query)) continue
             visibleIndices.add(i)
         }
-        // favorites first
         visibleIndices.sortByDescending { entries.getJSONObject(it).optBoolean("fav", false) }
+        val favIdx = mutableListOf<Int>()
+        val groups = LinkedHashMap<String, MutableList<Int>>()
         for (idx in visibleIndices) {
             val obj = entries.getJSONObject(idx)
-            val isPdf = obj.optString("type") == "pdf"
-            val fav = obj.optBoolean("fav", false)
-            val label = buildString {
-                if (fav) append("★ ")
-                else append("☆ ")
-                append(obj.optString("title", ""))
-                if (isPdf) append("  (PDF, ")
-                    .append(obj.optInt("pages", 1))
-                    .append(" pages)")
+            if (obj.optBoolean("fav", false)) {
+                favIdx.add(idx)
+            } else {
+                val folderName = if (obj.has("folder") && obj.optString("folder").isNotEmpty()) {
+                    obj.optString("folder")
+                } else {
+                    "Boards"
+                }
+                groups.getOrPut(folderName) { mutableListOf() }.add(idx)
             }
-            val row = TextView(this)
-            row.text = label
-            row.textSize = 15f
-            row.setTextColor(getColor(R.color.textMain))
-            row.setPadding(28, 40, 28, 40)
-            row.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.card)))
-            row.gravity = Gravity.CENTER_VERTICAL
-            row.setOnClickListener { openViewer(idx) }
-            row.setOnLongClickListener {
-                confirmDelete(idx)
-                true
-            }
-            binding.boardList.addView(row)
+        }
+        for (i in favIdx) addRow(i)
+        for (f in groups.keys.sorted()) {
+            val list = groups[f]!!
+            binding.boardList.addView(headerFor("$f  ·  ${list.size}"))
+            for (i in list) addRow(i)
         }
         binding.emptyState.visibility =
             if (visibleIndices.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun addRow(idx: Int) {
+        val obj = entries.getJSONObject(idx)
+        val isPdf = obj.optString("type") == "pdf"
+        val fav = obj.optBoolean("fav", false)
+        val label = buildString {
+            if (fav) append("★ ")
+            else append("☆ ")
+            append(obj.optString("title", ""))
+            if (isPdf) append("  (PDF, ")
+                .append(obj.optInt("pages", 1))
+                .append(" pages)")
+        }
+        val row = TextView(this)
+        row.text = label
+        row.textSize = 15f
+        row.setTextColor(getColor(R.color.textMain))
+        row.setPadding(28, 40, 28, 40)
+        row.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.card)))
+        row.gravity = Gravity.CENTER_VERTICAL
+        row.setOnClickListener { openViewer(idx) }
+        row.setOnLongClickListener {
+            confirmDelete(idx)
+            true
+        }
+        binding.boardList.addView(row)
+    }
+
+    private fun headerFor(headerText: String): TextView = TextView(this).apply {
+        text = headerText
+        textSize = 14f
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        setTextColor(getColor(R.color.accent))
+        setPadding(28, 36, 28, 8)
     }
 
     private fun reloadQuiet() {

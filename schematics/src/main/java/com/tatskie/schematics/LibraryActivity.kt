@@ -83,15 +83,34 @@ class LibraryActivity : AppCompatActivity() {
         val files = LibraryManager.cachedManifest(this)
         val query = binding.searchBox.text?.toString()?.trim()?.lowercase() ?: ""
         binding.libList.removeAllViews()
+        val groups = LinkedHashMap<String, MutableList<JSONObject>>()
         for (i in 0 until files.length()) {
             val e = files.getJSONObject(i)
             val title = e.optString("title").lowercase()
             val name = e.optString("name").lowercase()
             if (query.isNotEmpty() && !title.contains(query) && !name.contains(query)) continue
-            binding.libList.addView(rowFor(e))
+            val folderName = if (e.has("folder") && e.optString("folder").isNotEmpty()) {
+                e.optString("folder")
+            } else {
+                "Unassigned"
+            }
+            groups.getOrPut(folderName) { mutableListOf() }.add(e)
+        }
+        for (f in groups.keys.sorted()) {
+            val list = groups[f]!!
+            binding.libList.addView(headerFor("$f  ·  ${list.size}"))
+            for (e in list) binding.libList.addView(rowFor(e))
         }
         binding.emptyState.visibility =
             if (binding.libList.childCount == 0) View.VISIBLE else View.GONE
+    }
+
+    private fun headerFor(headerText: String): TextView = TextView(this).apply {
+        text = headerText
+        textSize = 16f
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        setTextColor(getColor(R.color.accent))
+        setPadding(dp(20), dp(16), dp(20), dp(6))
     }
 
     private fun open(entry: JSONObject) {
@@ -104,7 +123,12 @@ class LibraryActivity : AppCompatActivity() {
         }
         var idx = BoardStore.indexOfTitle(this, title)
         if (idx < 0) {
-            BoardStore.importFile(this, src, title, name) ?: run {
+            val folder = if (entry.has("folder") && entry.optString("folder").isNotEmpty()) {
+                entry.optString("folder")
+            } else {
+                ""
+            }
+            BoardStore.importFile(this, src, title, name, folder) ?: run {
                 Toast.makeText(this, "Import failed", Toast.LENGTH_SHORT).show()
                 return
             }

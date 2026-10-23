@@ -36,6 +36,11 @@ class ZoomView @JvmOverloads constructor(
     private val values = FloatArray(9)
     private var mode = NONE
     private var lastTapTime = 0L
+    private val baseMatrix = Matrix()
+    private var baseScaleVal = 1f
+    var onIdleZoom: ((Float) -> Unit)? = null
+    var onZoomChanged: ((Float) -> Unit)? = null
+    var onCanvasTap: (() -> Unit)? = null
 
     private val scaleDetector: ScaleGestureDetector
     private val gestureDetector: GestureDetector
@@ -51,6 +56,7 @@ class ZoomView @JvmOverloads constructor(
                     if (cur <= 0f) return true
                     val f = det.scaleFactor.coerceIn(MIN_SCALE / cur, MAX_SCALE / cur)
                     matrix.postScale(f, f, det.focusX, det.focusY)
+                    onZoomChanged?.invoke(currentScale())
                     return true
                 }
             }
@@ -69,6 +75,7 @@ class ZoomView @JvmOverloads constructor(
                         val f = DOUBLE_TAP_ZOOM / cur
                         matrix.postScale(f, f, e.x, e.y)
                         imageMatrix = matrix
+                        onZoomChanged?.invoke(currentScale())
                     }
                     return true
                 }
@@ -79,6 +86,21 @@ class ZoomView @JvmOverloads constructor(
     fun setBitmap(bitmap: Bitmap) {
         setImageBitmap(bitmap)
         post { fitToScreen() }
+    }
+
+    fun setBitmapHd(bitmap: Bitmap, previewWidth: Int) {
+        if (bitmap.width <= 0 || previewWidth <= 0 || width <= 0) return
+        val k = previewWidth.toFloat() / bitmap.width
+        setImageBitmap(bitmap)
+        if (k in 0.001f..0.999f) {
+            matrix.set(imageMatrix)
+            matrix.postScale(k, k)
+            savedMatrix.set(matrix)
+            baseMatrix.postScale(k, k)
+            baseScaleVal *= k
+        }
+        imageMatrix = matrix
+        onZoomChanged?.invoke(currentScale())
     }
 
     private fun fitToScreen() {
@@ -96,25 +118,34 @@ class ZoomView @JvmOverloads constructor(
         matrix.reset()
         matrix.postScale(scale, scale)
         matrix.postTranslate((w - bw * scale) / 2f, (h - bh * scale) / 2f)
+        baseMatrix.set(matrix)
+        baseScaleVal = scale
         savedMatrix.set(matrix)
         imageMatrix = matrix
+        onZoomChanged?.invoke(currentScale())
+    }
+
+    fun currentLevel(): Float = currentScale() / baseScaleVal.coerceAtLeast(0.0001f)
+
+    fun zoomTo(level: Float) {
+        if (width <= 0 || height <= 0 || baseScaleVal <= 0f) return
+        val lvl = level.coerceIn(MIN_SCALE / baseScaleVal, MAX_SCALE / baseScaleVal)
+        matrix.set(baseMatrix)
+        matrix.postScale(lvl, lvl, width / 2f, height / 2f)
+        savedMatrix.set(matrix)
+        imageMatrix = matrix
+        onZoomChanged?.invoke(currentScale())
+    }
+
+    fun zoomToScale(targetScale: Float) {
+        zoomTo(targetScale / baseScaleVal.coerceAtLeast(0.0001f))
     }
 
     private fun resetToBase() {
-        savedMatrix.set(baseMatrixSnapshot())
-        imageMatrix = savedMatrix
-    }
-
-    private fun baseMatrixSnapshot(): Matrix {
-        val d = drawable ?: return Matrix()
-        val bw = d.intrinsicWidth.toFloat()
-        val bh = d.intrinsicHeight.toFloat()
-        if (bw <= 0f || bh <= 0f || width <= 0 || height <= 0) return Matrix()
-        val scale = minOf(width.toFloat() / bw, height.toFloat() / bh)
-        val m = Matrix()
-        m.postScale(scale, scale)
-        m.postTranslate((width - bw * scale) / 2f, (height - bh * scale) / 2f)
-        return m
+        savedMatrix.set(baseMatrix)
+        matrix.set(baseMatrix)
+        imageMatrix = matrix
+        onZoomChanged?.invoke(currentScale())
     }
 
     private fun currentScale(): Float {
@@ -122,10 +153,7 @@ class ZoomView @JvmOverloads constructor(
         return values[Matrix.MSCALE_X]
     }
 
-    private fun baseScale(): Float {
-        baseMatrixSnapshot().getValues(values)
-        return values[Matrix.MSCALE_X]
-    }
+    private fun baseScale(): Float = baseScaleVal
 
     private fun midPoint(out: PointF, ev: MotionEvent) {
         out.set(
@@ -153,13 +181,18 @@ class ZoomView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 mode = NONE
+                val dx = event.x - start.x
+                val dy = event.y - start.y
+                if (dx * dx + dy * dy < 225f) onCanvasTap?.invoke()
                 matrix.set(imageMatrix)
                 savedMatrix.set(matrix)
+                onIdleZoom?.invoke(currentScale() / baseScaleVal)
             }
             MotionEvent.ACTION_POINTER_UP -> {
                 mode = NONE
                 matrix.set(imageMatrix)
                 savedMatrix.set(matrix)
+                onIdleZoom?.invoke(currentScale() / baseScaleVal)
             }
             MotionEvent.ACTION_MOVE -> {
                 when (mode) {
@@ -173,6 +206,7 @@ class ZoomView @JvmOverloads constructor(
                     }
                     ZOOM -> {
                         imageMatrix = matrix
+                        onZoomChanged?.invoke(currentScale())
                     }
                 }
             }
